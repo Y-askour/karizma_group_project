@@ -1,56 +1,52 @@
+// Import necessary libraries and dependencies
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import './Login.css'; // Import your CSS file
 
 const Login = () => {
+  // State for handling input values
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const navigate = useNavigate();
 
-  const handleLogin = async () => {
+  // Function to handle form submission
+  const handleLogin = async (e) => {
+    e.preventDefault();
+
     try {
       const response = await axios.post('http://localhost:3001/auth/signup', {
-        username: username,
-        password: password,
+        username,
+        password,
       });
 
-      const token = response.data.access_token;
+      // Store the token in local storage
+      localStorage.setItem('token', response.data.access_token);
 
-      console.log('Token:', token);
-
-      localStorage.setItem('token', token);
-
+      // Redirect to recipes page
       navigate('/recipes');
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('Login Error:', error);
     }
   };
 
+  // React router hook to navigate between pages
+  const navigate = useNavigate();
+
   return (
-    <div>
+    <div className="login-container">
       <h2>Login</h2>
-      <form>
+      <form onSubmit={handleLogin}>
         <label>
           Username:
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
+          <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} />
         </label>
         <br />
         <label>
           Password:
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
         </label>
         <br />
-        <button type="button" onClick={handleLogin}>
-          Login
-        </button>
+        <button type="submit">Login</button>
       </form>
     </div>
   );
