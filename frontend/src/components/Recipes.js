@@ -102,9 +102,15 @@ function Recipes() {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/login');
+  };
+
   return (
     <div style={styles.container}>
       <h2 style={styles.header}>Recipes</h2>
+      <button onClick={handleLogout}>Logout</button>
       <div style={styles.recipeContainer}>
         {recipes.map((recipe) => (
           <div key={recipe._id} style={styles.recipeCard}>
@@ -128,7 +134,7 @@ function Recipes() {
         <input type="text" value={newRecipe.preparationSteps.join(',')} onChange={(e) => setNewRecipe({ ...newRecipe, preparationSteps: e.target.value.split(',') })} />
 
         <label>Preparation Time (minutes):</label>
-        <input type="number" value={newRecipe.preparationTime} onChange={(e) => setNewRecipe({ ...newRecipe, preparationTime: e.target.value })} />
+        <input type="number" value={newRecipe.preparationTime} onChange={(e) => setNewRecipe({ ...newRecipe, preparationTime: Number(e.target.value) })} />
 
         <label>Photo URL:</label>
         <input type="text" value={newRecipe.photoUrl} onChange={(e) => setNewRecipe({ ...newRecipe, photoUrl: e.target.value })} />
