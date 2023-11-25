@@ -9,7 +9,10 @@ import { LoggerMiddleware } from './common/utils/logger';
 	  [
 	  	AuthModule,
 	  	PrismaModule,
-	  	PassportModule.register({session: true}),
+	  	PassportModule.register({
+			secret: process.env.secret,
+			signOptins: {expriresin: "1h"}
+		}),
   ],
 })
 
