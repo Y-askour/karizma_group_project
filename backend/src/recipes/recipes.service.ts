@@ -15,6 +15,7 @@ export class RecipesService {
   }
 
   async addRecipe(recipeDto: RecipeDto, userId: string) {
+	  console.log(recipeDto)
     return this.prisma.recipe.create({
       data: {
 		  userId: userId,

@@ -29,10 +29,3 @@ model Recipe {
   userId            String
   user              User     @relation(fields: [userId], references: [id])
 }
-
-model Session {
-  id        String   @id
-  sid       String   @unique
-  data      String
-  expiresAt   DateTime
-}
