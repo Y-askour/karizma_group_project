@@ -13,9 +13,8 @@ datasource db {
 model User {
   id            String      @id @default(uuid())
   username      String
-  email         String   @unique
-  googleId      String   @unique
   recipes       Recipe[]
+  password		String
 }
 
 
