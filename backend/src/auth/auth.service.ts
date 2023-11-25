@@ -1,22 +1,19 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { PrismaService } from 'prisma/prisma.service';
+import { compare, hash } from 'bcrypt';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private prisma: PrismaService,
-    private jwtService: JwtService,
+    private readonly usersService: UsersService,
+    private readonly jwtService: JwtService,
   ) {}
 
-  async validateUser(username: string, password: string): Promise<any> {
-    const user = await this.prisma.user.findUnique({
-		where: {
-			id: "1",
-		}
-	});
+  async validateUser(username: string, password: string): Promise<any | null> {
+    const user = await this.usersService.findOne(username);
 
-    if (user && user.password === password) {
+    if (user && (await compare(password, user.password))) {
       const { password, ...result } = user;
       return result;
     }
@@ -24,8 +21,28 @@ export class AuthService {
     return null;
   }
 
-  async login(user: any) {
-    const payload = { username: user.username, sub: user.id };
+
+  async signup(username: string, password: string): Promise<{ access_token: string }> {
+    if (!username || !password) {
+      throw new BadRequestException('Username and password are required');
+    }
+
+    const existingUser = await this.usersService.findOne(username);
+    if (existingUser) {
+    	const payload = { username: existingUser.username, sub: existingUser.id };
+    	return {
+    	  access_token: this.jwtService.sign(payload),
+    	};
+    }
+
+    const hashedPassword = await hash(password, 10);
+
+    const newUser = await this.usersService.create({
+      username,
+      password: hashedPassword,
+    });
+
+    const payload = { username: newUser.username, sub: newUser.id };
     return {
       access_token: this.jwtService.sign(payload),
     };
