@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import './Signup.css'; 
+import './Signup.css'; // Import the stylesheet
+
 const Signup = ({ onSignup }) => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
   const handleSignup = async () => {
     try {
-      const response = await axios.post('http://localhost:3001/signup', { name, email, password });
+      const response = await axios.post('http://localhost:3001/auth/signup', { username, password });
       const token = response.data.token;
       localStorage.setItem('token', token);
       onSignup();
@@ -22,15 +22,9 @@ const Signup = ({ onSignup }) => {
       <div className="signup-form">
         <input
           type="text"
-          placeholder="Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
         />
         <input
           type="password"
@@ -45,3 +39,4 @@ const Signup = ({ onSignup }) => {
 };
 
 export default Signup;
+

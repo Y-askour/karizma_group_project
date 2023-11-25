@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, NavLink, Outlet } from 'react-router-dom';
 import Login from './src/components/Login';
-import RecipeList from './src/components/RecipeList';
 import DeleteRecipe from './src/components/DeleteRecipe';
 import Signup from './src/components/Signup';
+import Recipes from './src/components/Recipes'; // Import the Recipes component
 import './App.css'; // Import the global stylesheet
 
 const App = () => {
@@ -56,7 +56,7 @@ const App = () => {
             <>
               <Route
                 path="/recipes"
-                element={<RecipeList token={token} />}
+                element={<Recipes />} // Use the Recipes component here
               />
               <Route
                 path="/delete-recipe"

@@ -1,30 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React from 'react';
 
-const RecipeList = ({ token }) => {
-  const [recipes, setRecipes] = useState([]);
-
-  useEffect(() => {
-    const fetchRecipes = async () => {
-      try {
-        const response = await axios.get('http://localhost:3000/recipes', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setRecipes(response.data);
-      } catch (error) {
-        console.error('Error fetching recipes:', error.message);
-      }
-    };
-
-    fetchRecipes();
-  }, [token]);
-
+const RecipeList = ({ recipes }) => {
   return (
     <div>
-      <h2>Recipe List</h2>
+      <h2>Recipes</h2>
       <ul>
-        {recipes.map(recipe => (
-          <li key={recipe.id}>{recipe.name}</li>
+        {recipes.map((recipe) => (
+          <li key={recipe.id}>
+            <h3>{recipe.title}</h3>
+            <p>ID: {recipe.id}</p>
+            <p>Ingredients: {recipe.ingredients.join(', ')}</p>
+            <p>Steps: {recipe.steps}</p>
+            <p>Preparation Time: {recipe.preparationTime} minutes</p>
+			{recipe.photo && <img src={recipe.photo} alt="" />}
+          </li>
         ))}
       </ul>
     </div>
