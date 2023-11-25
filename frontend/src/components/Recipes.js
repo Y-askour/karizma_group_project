@@ -4,27 +4,23 @@ import axios from 'axios';
 
 const styles = {
   container: {
-    maxWidth: '600px',
-    margin: 'auto',
-    padding: '20px',
+    textAlign: 'center',
+    marginTop: '20px',
   },
   header: {
-    fontSize: '24px',
-    marginBottom: '20px',
+    color: '#333',
   },
   recipeContainer: {
-    maxHeight: '400px',
-    overflowY: 'auto',
+    display: 'flex',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
   },
-  recipeList: {
-    listStyleType: 'none',
-    padding: '0',
-  },
-  recipeItem: {
-    marginBottom: '20px',
-    border: '1px solid #ccc',
-    borderRadius: '5px',
-    padding: '10px',
+  recipeCard: {
+    border: '1px solid #ddd',
+    borderRadius: '8px',
+    padding: '16px',
+    margin: '16px',
+    minWidth: '200px',
   },
   form: {
     marginTop: '20px',
@@ -40,10 +36,11 @@ function Recipes() {
     preparationTime: 0,
     photoUrl: '',
   });
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchRecipes = async () => {
+    const fetchData = async () => {
       try {
         const response = await axios.get('http://localhost:3001/auth/recipes', {
           headers: {
@@ -56,11 +53,16 @@ function Recipes() {
       }
     };
 
-    fetchRecipes();
+    fetchData();
   }, []);
 
   const handleAddRecipe = async (e) => {
     e.preventDefault();
+
+    if (!newRecipe.name || !newRecipe.ingredients.length || !newRecipe.preparationSteps.length || newRecipe.preparationTime <= 0) {
+      setError('Please fill in all fields and ensure preparation time is greater than 0.');
+      return;
+    }
 
     try {
       const response = await axios.post(
@@ -80,8 +82,10 @@ function Recipes() {
         preparationTime: 0,
         photoUrl: '',
       });
+      setError('');
     } catch (error) {
       console.error('Error adding recipe:', error);
+      setError('Error adding recipe. Please try again.');
     }
   };
 
@@ -92,7 +96,7 @@ function Recipes() {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
       });
-      setRecipes(recipes.filter((recipe) => recipe.id !== id));
+      setRecipes(recipes.filter((recipe) => recipe._id !== id));
     } catch (error) {
       console.error('Error deleting recipe:', error);
     }
@@ -102,81 +106,34 @@ function Recipes() {
     <div style={styles.container}>
       <h2 style={styles.header}>Recipes</h2>
       <div style={styles.recipeContainer}>
-        <ul style={styles.recipeList}>
-          {recipes.map((recipe) => (
-            <li key={recipe.id} style={styles.recipeItem}>
-              {/* Display recipe details */}
-              <strong>{recipe.name}</strong>
-              <p>{recipe.ingredients.join(', ')}</p>
-              <p>{recipe.preparationSteps.join(', ')}</p>
-              <p>Preparation Time: {recipe.preparationTime} minutes</p>
-              <p>Photo URL: {recipe.photoUrl}</p>
-              {/* Add delete button */}
-              <button onClick={() => handleDeleteRecipe(recipe.id)}>
-                Delete
-              </button>
-            </li>
-          ))}
-        </ul>
+        {recipes.map((recipe) => (
+          <div key={recipe._id} style={styles.recipeCard}>
+            <h3>{recipe.name}</h3>
+            <p>Preparation Time: {recipe.preparationTime} minutes</p>
+            <p>Ingredients: {recipe.ingredients.join(', ')}</p>
+            <p>Steps: {recipe.preparationSteps.join(', ')}</p>
+            <button onClick={() => handleDeleteRecipe(recipe._id)}>Delete</button>
+          </div>
+        ))}
       </div>
 
       <form style={styles.form} onSubmit={handleAddRecipe}>
-        {/* Add form fields for newRecipe */}
         <label>Name:</label>
-        <input
-          type="text"
-          value={newRecipe.name}
-          onChange={(e) =>
-            setNewRecipe({ ...newRecipe, name: e.target.value })
-          }
-        />
+        <input type="text" value={newRecipe.name} onChange={(e) => setNewRecipe({ ...newRecipe, name: e.target.value })} />
 
         <label>Ingredients (comma-separated):</label>
-        <input
-          type="text"
-          value={newRecipe.ingredients.join(',')}
-          onChange={(e) =>
-            setNewRecipe({
-              ...newRecipe,
-              ingredients: e.target.value.split(',').map((item) => item.trim()),
-            })
-          }
-        />
+        <input type="text" value={newRecipe.ingredients.join(',')} onChange={(e) => setNewRecipe({ ...newRecipe, ingredients: e.target.value.split(',') })} />
 
         <label>Preparation Steps (comma-separated):</label>
-        <input
-          type="text"
-          value={newRecipe.preparationSteps.join(',')}
-          onChange={(e) =>
-            setNewRecipe({
-              ...newRecipe,
-              preparationSteps: e.target.value
-                .split(',')
-                .map((step) => step.trim()),
-            })
-          }
-        />
+        <input type="text" value={newRecipe.preparationSteps.join(',')} onChange={(e) => setNewRecipe({ ...newRecipe, preparationSteps: e.target.value.split(',') })} />
 
         <label>Preparation Time (minutes):</label>
-        <input
-          type="number"
-          value={newRecipe.preparationTime}
-          onChange={(e) =>
-            setNewRecipe({
-              ...newRecipe,
-              preparationTime: parseInt(e.target.value, 10),
-            })
-          }
-        />
+        <input type="number" value={newRecipe.preparationTime} onChange={(e) => setNewRecipe({ ...newRecipe, preparationTime: e.target.value })} />
 
         <label>Photo URL:</label>
-        <input
-          type="text"
-          value={newRecipe.photoUrl}
-          onChange={(e) =>
-            setNewRecipe({ ...newRecipe, photoUrl: e.target.value })
-          }
-        />
+        <input type="text" value={newRecipe.photoUrl} onChange={(e) => setNewRecipe({ ...newRecipe, photoUrl: e.target.value })} />
+
+        {error && <p style={{ color: 'red' }}>{error}</p>}
 
         <button type="submit">Add Recipe</button>
       </form>
